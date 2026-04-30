@@ -1,0 +1,299 @@
+# PORTFOLIO_OS — Cursor Rules
+# Cybersecurity Portfolio · Next.js 14+ · TypeScript · Tailwind · Framer Motion · Zustand
+
+# ─────────────────────────────────────────────────────────────
+# SECTION 1 — PROJECT IDENTITY
+# ─────────────────────────────────────────────────────────────
+
+You are an expert Next.js 14 engineer, TypeScript architect, and UI/UX specialist
+building a cybersecurity-themed developer portfolio. The aesthetic is a dark terminal
+OS — think Matrix green on black, system log cards, and a CLI-driven navigation layer.
+
+The owner is a cybersecurity student and full-stack developer. Every technical decision
+should reflect the standards expected of a security-conscious engineer. Code quality,
+security hygiene, and accessibility are not optional — they are part of the brand.
+
+# ─────────────────────────────────────────────────────────────
+# SECTION 2 — TECHNICAL STACK (NON-NEGOTIABLE)
+# ─────────────────────────────────────────────────────────────
+
+Framework:     Next.js 14+ with App Router only. Never use Pages Router patterns.
+Language:      TypeScript in strict mode. Zero tolerance for `any` or implicit types.
+Styling:       Tailwind CSS using the custom token set defined in tailwind.config.ts.
+               Never use inline style attributes unless driven by a dynamic JS value
+               that cannot be expressed as a Tailwind class (e.g. a CSS custom property
+               updated by a mousemove listener).
+Animation:     Framer Motion for layout animations, accordions, and scroll-triggered
+               effects. CSS keyframes (defined in globals.css) for ambient loops like
+               the CRT flicker and typing cursor.
+State:         Zustand exclusively for global state. React useState for local UI state
+               that does not need to be shared. Never use useContext for state that
+               changes frequently — it causes unnecessary re-renders.
+Icons:         Lucide React for generic UI icons. Local SVGs from
+               /public/assets/tools/ for tool-specific logos (Wireshark, Nmap, etc.).
+Testing:       Vitest for unit and component tests. Playwright for E2E tests.
+Deployment:    Vercel with all security headers configured in next.config.js.
+
+# ─────────────────────────────────────────────────────────────
+# SECTION 3 — DESIGN SYSTEM TOKENS
+# ─────────────────────────────────────────────────────────────
+
+Always use these token names from tailwind.config.ts. Never hardcode hex values
+directly in component files.
+
+Backgrounds:
+  void          #000000    Main page background
+  component     #0D0D0D    Sidebar, card backgrounds
+  card-hover    #121212    Card hover state
+
+Accents:
+  matrix-green  #00FF41    Primary accent — CLI, sidebar border, default glow
+  cyber-orange  #FF5F00    Warning / CRIT / KERNEL log channel
+  app-cyan      #00CCFF    APP_DEV log channel
+  warn-yellow   #FFD700    SYS_ADMIN log channel
+
+Typography:
+  font-mono: JetBrains Mono → Fira Code → system monospace fallback
+
+Log channel to colour mapping (use these consistently everywhere):
+  KERNEL    → cyber-orange
+  SEC_OPS   → matrix-green
+  APP_DEV   → app-cyan
+  SYS_ADMIN → warn-yellow
+
+# ─────────────────────────────────────────────────────────────
+# SECTION 4 — FILE STRUCTURE RULES
+# ─────────────────────────────────────────────────────────────
+
+Respect the established directory structure. Never create files outside these paths
+without a clear architectural reason documented in a comment.
+
+  src/app/                  Next.js App Router routes and special files
+  src/components/layout/    Global persistent UI (CliHeader, Sidebar, MobileFab, ErrorBoundary)
+  src/components/sections/  One file per page section (HeroSection, ProjectsSection, etc.)
+  src/components/ui/        Reusable leaf components (ProjectLogCard, CertBadge, etc.)
+  src/data/                 registry.ts and constants.ts — the only source of truth for content
+  src/hooks/                Custom React hooks (useScrollSpy, useCommandEngine)
+  src/store/                Zustand store (useSystemStore.ts — one file, all slices)
+  src/types/                index.ts — all shared TypeScript interfaces
+  src/utils/                Pure utility functions (commandEngine, hexDump, sanitise)
+  public/assets/fonts/      Self-hosted font files only
+  public/assets/tools/      SVG icons for development tools
+  public/assets/certs/      Certification badge images
+  tests/unit/               Vitest unit and component tests
+  tests/e2e/                Playwright end-to-end tests
+
+# ─────────────────────────────────────────────────────────────
+# SECTION 5 — TYPESCRIPT RULES
+# ─────────────────────────────────────────────────────────────
+
+- Strict mode is always on. Never disable it or add @ts-ignore.
+- Never use `any`. If you are tempted to use `any`, define a proper interface instead.
+- Never use non-null assertion (`!`) unless you have verified the value cannot be null
+  at that point in the code and left a comment explaining why.
+- All props interfaces must be defined and named, not inlined as object literals.
+- Union types for constrained string values (LogChannel, LogLevel, CertStatus, etc.)
+  are already defined in src/types/index.ts. Always import and use them — never
+  re-declare them or use plain `string` where a union is available.
+- Use `satisfies` operator when validating that a data literal matches an interface
+  without widening the type, especially in registry.ts.
+- Export only what needs to be consumed outside the file. Keep helpers private.
+
+# ─────────────────────────────────────────────────────────────
+# SECTION 6 — COMPONENT RULES
+# ─────────────────────────────────────────────────────────────
+
+- Every section component (HeroSection, ProjectsSection, etc.) must be wrapped in
+  its own ErrorBoundary instance in page.tsx. A crash in one section must not
+  affect any other section.
+- Every component file that uses browser APIs (window, document, IntersectionObserver)
+  must guard with `typeof window !== 'undefined'` or use the `'use client'` directive.
+- Server Components are preferred by default. Only add `'use client'` when the
+  component uses hooks, event handlers, or browser APIs.
+- Never use dangerouslySetInnerHTML anywhere in this project. All CLI output is
+  rendered as plain text nodes only.
+- All links to external URLs must include `rel="noopener noreferrer"` and
+  `target="_blank"`.
+- The resume path must always be read from `src/data/constants.ts` — never
+  hardcoded in a component.
+
+# ─────────────────────────────────────────────────────────────
+# SECTION 7 — STATE MANAGEMENT RULES
+# ─────────────────────────────────────────────────────────────
+
+- The Zustand store (useSystemStore.ts) is the single source of truth for:
+    activeSection, sidebarExpanded, sidebarMobileOpen, cliInput, cliHistory,
+    activeProjectId, cleanModeEnabled, glitchActive.
+- Local useState is acceptable for ephemeral UI state that no other component
+  needs to know about (e.g. whether a dropdown inside a card is open).
+- Never derive state by reading the DOM (e.g. checking scroll position directly
+  in a component). Use the useScrollSpy hook which manages IntersectionObserver
+  and writes to Zustand.
+- All entries pushed to cliHistory must pass through the sanitiseCLIOutput
+  function from src/utils/sanitise.ts before being stored. This is enforced by
+  always using the pushCliHistory store action, never writing to cliHistory directly.
+
+# ─────────────────────────────────────────────────────────────
+# SECTION 8 — ANIMATION RULES
+# ─────────────────────────────────────────────────────────────
+
+- Every animation must have a prefers-reduced-motion fallback. This is not optional.
+  The global override in globals.css handles ambient CSS keyframes automatically.
+  For Framer Motion animations, use the useReducedMotion() hook and pass a
+  no-motion variant when it returns true.
+- Never animate properties that trigger layout (width, height, top, left, margin,
+  padding). Animate only transform and opacity. For accordion height animations,
+  use Framer Motion's layout prop which uses transforms internally.
+- The CRT scanline overlay div and the flicker keyframe on the root body are both
+  conditionally active based on cleanModeEnabled in Zustand. When cleanModeEnabled
+  is true, the overlay must be unmounted from the DOM entirely — not hidden with
+  display:none or visibility:hidden.
+- The skills section scan line fires once per page load when the section first
+  enters the viewport. It must not re-fire on subsequent scrolls. Disconnect the
+  IntersectionObserver after the first trigger.
+- Framer Motion AnimatePresence must wrap any component that conditionally renders,
+  including accordion content, the mobile sidebar overlay, and the glitch overlay.
+
+# ─────────────────────────────────────────────────────────────
+# SECTION 9 — ACCESSIBILITY RULES
+# ─────────────────────────────────────────────────────────────
+
+- Target WCAG AA compliance as a minimum across the entire application.
+- All interactive elements must have visible focus styles. Use a matrix-green
+  outline (outline: 2px solid #00FF41, outline-offset: 2px) as the global
+  focus style in globals.css.
+- The CLI header input must not trap keyboard focus. Tab from the input must
+  move focus to the first focusable element in the sidebar.
+- The mobile sidebar overlay must trap focus while open. Use the inert attribute
+  on the main content or a focus trap utility.
+- All icon-only buttons (the clean mode eye icon, the mobile FAB) must have
+  aria-label attributes. Lucide React icons inside buttons need aria-hidden="true".
+- Toggle buttons must use aria-pressed reflecting the current state.
+- Expandable cards (ProjectLogCard, CertBadge verbose mode) must use aria-expanded
+  on the toggle element.
+- The certification progress bar must use role="progressbar" with aria-valuenow,
+  aria-valuemin, aria-valuemax, and aria-label.
+- Skill badge grid items must carry aria-label stating the skill name and
+  proficiency level as a fraction (e.g. "Wireshark, proficiency 4 of 5").
+- Images loaded with next/image must always have a meaningful alt attribute.
+  Decorative images use alt="".
+
+# ─────────────────────────────────────────────────────────────
+# SECTION 10 — SECURITY RULES
+# ─────────────────────────────────────────────────────────────
+
+This is a cybersecurity portfolio. The code itself is part of the portfolio.
+Security mistakes here are a red flag to the exact audience you are trying to impress.
+
+- Never use dangerouslySetInnerHTML. This rule is repeated from Section 6 because
+  it is the most critical XSS vector in React.
+- All CLI command output must pass through sanitiseCLIOutput before being stored
+  or rendered. This is not negotiable.
+- All security headers (CSP, HSTS, X-Frame-Options, etc.) are configured in
+  next.config.js. Never remove or loosen them without a documented reason.
+- External resources (fonts, icons) are self-hosted in /public/assets/. Do not
+  add external CDN dependencies that would require loosening the CSP.
+- The Content Security Policy must remain strict. If a new feature requires
+  relaxing the CSP, document exactly why in next.config.js with a comment.
+- Never commit real credentials, tokens, or personal contact details to the
+  repository. Use environment variables for anything sensitive and document
+  them in .env.example.
+
+# ─────────────────────────────────────────────────────────────
+# SECTION 11 — DATA LAYER RULES
+# ─────────────────────────────────────────────────────────────
+
+- src/data/registry.ts is the single source of truth for all content.
+  Components never hardcode content — they always read from the registry.
+- src/data/constants.ts is the single source of truth for all URLs, paths,
+  and configuration values referenced in more than one place.
+- The hidden boolean flag on Project and IntelEntry controls production
+  visibility. Setting hidden: true excludes the entry from all renders without
+  deleting it from the codebase.
+- The sidebar directory tree is generated dynamically from the registry.
+  Never hardcode sidebar entries in the Sidebar component. If a new logChannel
+  is added to the data, the sidebar must reflect it automatically.
+- When adding a new project to the registry, all required fields must be
+  populated. Optional fields (githubUrl, liveUrl, vulnType) may be omitted
+  but must not be left as empty strings — use undefined instead.
+
+# ─────────────────────────────────────────────────────────────
+# SECTION 12 — TESTING RULES
+# ─────────────────────────────────────────────────────────────
+
+- The sanitiser utility must have unit tests written before it is used anywhere
+  in the application. Tests first, integration second.
+- Every utility function in src/utils/ must have a corresponding test file
+  in tests/unit/.
+- Component tests must verify the null-render behaviour of CertBadge when
+  status is 'planned'. This is a safety net for the most common content mistake.
+- E2E tests must cover: boot sequence completion, CLI navigation commands,
+  accordion single-expansion behaviour, resume link target, and the 404 page.
+- Do not mock the Zustand store in component tests. Use the real store with
+  a reset call in beforeEach to ensure test isolation.
+
+# ─────────────────────────────────────────────────────────────
+# SECTION 13 — PERFORMANCE RULES
+# ─────────────────────────────────────────────────────────────
+
+- Target: initial JS bundle under 150 KB gzipped, LCP under 2.5 s on 4G,
+  CLS under 0.1.
+- Framer Motion must not be included in the initial bundle. Import it only
+  in client components that actually use it. Use next/dynamic with ssr: false
+  for heavy animated sections if the Lighthouse score drops below 90.
+- All images use next/image with explicit width and height to prevent CLS.
+- Fonts are self-hosted with font-display: optional to eliminate FOUT and CLS.
+- The IntersectionObserver in useScrollSpy creates one observer instance for
+  all sections — never one observer per section.
+- The skills section scan line observer must disconnect after its first trigger
+  to avoid unnecessary callback invocations on subsequent scrolls.
+
+# ─────────────────────────────────────────────────────────────
+# SECTION 14 — CODE STYLE AND DOCUMENTATION
+# ─────────────────────────────────────────────────────────────
+
+- All exported functions in src/utils/ and src/hooks/ must have JSDoc comments
+  with @param, @returns, and @example.
+- Component files do not need JSDoc on the component function itself, but
+  complex internal helpers within a component file should have a one-line comment.
+- Use named exports everywhere. Default exports are only used for Next.js
+  special files (page.tsx, layout.tsx, not-found.tsx, etc.) where the framework
+  requires them.
+- Imports must be ordered: React and Next.js imports first, then third-party
+  libraries, then internal absolute imports, then relative imports. Separate
+  each group with a blank line.
+- No commented-out code in committed files. Use the hidden flag in the registry
+  to disable content, and use feature branches to disable features.
+- Variable and function names use camelCase. Type and interface names use
+  PascalCase. Constants that are truly constant (never reassigned) use
+  SCREAMING_SNAKE_CASE only when they represent a fixed configuration value
+  (e.g. MAX_CLI_HISTORY_LENGTH). Tailwind class strings are exempt.
+
+# ─────────────────────────────────────────────────────────────
+# SECTION 15 — WHAT NOT TO DO
+# ─────────────────────────────────────────────────────────────
+
+Never do any of the following:
+
+- Use the Pages Router. This project uses App Router exclusively.
+- Use `any` in TypeScript.
+- Use dangerouslySetInnerHTML anywhere.
+- Hardcode hex colour values in component files — use Tailwind tokens.
+- Hardcode the resume path, GitHub URL, LinkedIn URL, or email address
+  anywhere other than src/data/constants.ts.
+- Add external CDN links for fonts or icons — all assets are self-hosted.
+- Create one IntersectionObserver per section in the scroll-spy hook.
+- Allow the skills section scan animation to re-fire on repeated scrolls.
+- Render a CertBadge with status 'planned' — the component returns null.
+- Push unsanitised strings to the CLI history array.
+- Use display:none to hide the CRT overlay when clean mode is active —
+  unmount it from the DOM.
+- Loosen the Content Security Policy without a documented justification.
+- Commit .env files. Only .env.example is committed.
+- Skip the prefers-reduced-motion fallback on any animation.
+
+
+# Additional Snippets:
+
+- Be extremely concise. Do not explain code unless asked. Skip apologies. If modifying a file, only show the changed blocks unless a full rewrite is safer.
+

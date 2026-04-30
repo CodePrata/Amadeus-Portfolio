@@ -1,0 +1,267 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────────────────────
+   SELF-HOSTED FONTS
+   Place JetBrains Mono woff2 files in /public/assets/fonts/
+   font-display: optional eliminates FOUT and prevents CLS.
+───────────────────────────────────────────────────────────── */
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/assets/fonts/JetBrainsMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: optional;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/assets/fonts/JetBrainsMono-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: optional;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/assets/fonts/JetBrainsMono-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: optional;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   BASE RESET & ROOT TOKENS
+───────────────────────────────────────────────────────────── */
+:root {
+  --color-void: #000000;
+  --color-component: #0d0d0d;
+  --color-card-hover: #121212;
+  --color-matrix-green: #00ff41;
+  --color-cyber-orange: #ff5f00;
+  --color-app-cyan: #00ccff;
+  --color-warn-yellow: #ffd700;
+  --scanline-opacity: 0.04;
+  --flicker-duration: 8s;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-void);
+  color: var(--color-matrix-green);
+  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  animation: crt-flicker var(--flicker-duration) infinite;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   GLOBAL FOCUS STYLE (Section 9 — WCAG AA)
+   matrix-green outline on all interactive elements.
+───────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid #00ff41;
+  outline-offset: 2px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   CRT FLICKER — ambient body animation
+   Disabled via cleanModeEnabled: body flicker stops when the
+   animation class is removed from <body> by the layout component.
+───────────────────────────────────────────────────────────── */
+@keyframes crt-flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  93% {
+    opacity: 0.85;
+  }
+  94% {
+    opacity: 1;
+  }
+  96% {
+    opacity: 0.9;
+  }
+  98% {
+    opacity: 1;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SCANLINE OVERLAY
+   The .crt-overlay div is conditionally mounted/unmounted in
+   layout.tsx based on cleanModeEnabled. Never hide with
+   display:none or visibility:hidden — unmount from the DOM.
+───────────────────────────────────────────────────────────── */
+@keyframes scanlines-scroll {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 0 100%;
+  }
+}
+
+.crt-overlay {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, var(--scanline-opacity)) 2px,
+    rgba(0, 0, 0, var(--scanline-opacity)) 4px
+  );
+  animation: scanlines-scroll 8s linear infinite;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SKILLS SECTION SCAN LINE
+   Single-fire animation triggered by IntersectionObserver.
+   The observer disconnects after first trigger (Section 8 rule).
+───────────────────────────────────────────────────────────── */
+@keyframes skills-scan {
+  0% {
+    transform: translateX(-100%);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.skills-scan-line {
+  position: absolute;
+  inset-block: 0;
+  width: 3px;
+  background: linear-gradient(to bottom, transparent, var(--color-matrix-green), transparent);
+  animation: skills-scan 1.2s ease-in-out forwards;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   TYPING CURSOR
+   CSS keyframe keeps it off the JS thread.
+   prefers-reduced-motion fallback: cursor is always visible.
+───────────────────────────────────────────────────────────── */
+@keyframes blink-cursor {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.cli-cursor {
+  display: inline-block;
+  width: 0.55em;
+  height: 1.1em;
+  background-color: var(--color-matrix-green);
+  vertical-align: text-bottom;
+  animation: blink-cursor 1s step-end infinite;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   BOOT FADE-IN UTILITY
+───────────────────────────────────────────────────────────── */
+@keyframes boot-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   GLITCH EFFECT (triggered via Zustand glitchActive flag)
+───────────────────────────────────────────────────────────── */
+@keyframes glitch-shift {
+  0% {
+    clip-path: inset(40% 0 61% 0);
+    transform: translate(-4px, 0);
+  }
+  20% {
+    clip-path: inset(92% 0 1% 0);
+    transform: translate(4px, 0);
+  }
+  40% {
+    clip-path: inset(43% 0 1% 0);
+    transform: translate(-4px, 0);
+  }
+  60% {
+    clip-path: inset(25% 0 58% 0);
+    transform: translate(4px, 0);
+  }
+  80% {
+    clip-path: inset(54% 0 7% 0);
+    transform: translate(-4px, 0);
+  }
+  100% {
+    clip-path: inset(58% 0 43% 0);
+    transform: translate(0);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PREFERS-REDUCED-MOTION — global override
+   Kills all CSS keyframe animations. Framer Motion components
+   must additionally use the useReducedMotion() hook (Section 8).
+───────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .cli-cursor {
+    opacity: 1;
+    animation: none;
+  }
+
+  body {
+    animation: none;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SCROLLBAR STYLING — minimal, matrix-themed
+───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-component);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-matrix-green);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #00cc34;
+}
