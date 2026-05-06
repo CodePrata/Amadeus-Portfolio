@@ -36,9 +36,11 @@ interface UISlice {
   sidebarMobileOpen: boolean;
   cleanModeEnabled: boolean;
   glitchActive: boolean;
+  activeProjectId: string | null;
   toggleSidebar: () => void;
   setSidebarMobileOpen: (open: boolean) => void;
   toggleCleanMode: () => void;
+  setActiveProjectId: (projectId: string | null) => void;
   /** Activates the glitch overlay and auto-resets it after 800 ms. */
   triggerGlitch: () => void;
 }
@@ -73,7 +75,7 @@ let glitchTimer: ReturnType<typeof setTimeout> | null = null;
 
 export const useSystemStore = create<SystemStore>((set) => ({
   // ── NavigationSlice ────────────────────────────────────────
-  activeSection: 'hero',
+  activeSection: 'home',
   setActiveSection: (section) => set({ activeSection: section }),
 
   // ── UISlice ────────────────────────────────────────────────
@@ -81,12 +83,14 @@ export const useSystemStore = create<SystemStore>((set) => ({
   sidebarMobileOpen: false,
   cleanModeEnabled: false,
   glitchActive: false,
+  activeProjectId: null,
 
   toggleSidebar: () => set((state) => ({ sidebarExpanded: !state.sidebarExpanded })),
 
   setSidebarMobileOpen: (open) => set({ sidebarMobileOpen: open }),
 
   toggleCleanMode: () => set((state) => ({ cleanModeEnabled: !state.cleanModeEnabled })),
+  setActiveProjectId: (projectId) => set({ activeProjectId: projectId }),
 
   triggerGlitch: () => {
     if (glitchTimer !== null) {

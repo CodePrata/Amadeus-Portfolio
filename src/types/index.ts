@@ -104,6 +104,7 @@ export interface IntelEntry {
  * Must match the `id` attributes on section wrapper elements in page.tsx.
  */
 export type SectionId =
+  | 'home'
   | 'hero'
   | 'about'
   | 'projects'

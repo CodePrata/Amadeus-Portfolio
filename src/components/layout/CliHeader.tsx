@@ -13,6 +13,7 @@ interface CliHeaderProps {
 }
 
 const SECTION_PROMPTS: Record<string, string> = {
+  home: 'amadeus@portfolio:~/home$',
   hero: 'amadeus@portfolio:~/home$',
   about: 'amadeus@portfolio:~/home/user_profile$',
   projects: 'amadeus@portfolio:~/projects$',
@@ -42,7 +43,7 @@ export function CliHeader({ firstSidebarFocusableRef }: CliHeaderProps): JSX.Ele
   );
   const bootOpacity = useTransform(scrollY, [0, 120], [1, 0]);
   const prompt = useMemo(
-    () => SECTION_PROMPTS[activeSection] ?? SECTION_PROMPTS.hero,
+    () => SECTION_PROMPTS[activeSection] ?? SECTION_PROMPTS.home,
     [activeSection]
   );
 

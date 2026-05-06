@@ -53,8 +53,8 @@ export interface CommandResult {
 
 /** Maps user-facing directory names to SectionId values. */
 const SECTION_ALIASES: Record<string, SectionId> = {
-  hero: 'hero',
-  home: 'hero',
+  hero: 'home',
+  home: 'home',
   about: 'about',
   projects: 'projects',
   project: 'projects',
@@ -85,7 +85,7 @@ const handleLs: CommandHandler = (): CommandResult => ({
   action: 'output',
   output: [
     'drwxr-xr-x  portfolio/',
-    `  drwxr-xr-x  hero/       about/      projects/`,
+    `  drwxr-xr-x  home/       about/      projects/`,
     `  drwxr-xr-x  skills/     certs/      intel/      contact/`,
     '',
     `Usage: cd [section]   e.g.  cd projects`,

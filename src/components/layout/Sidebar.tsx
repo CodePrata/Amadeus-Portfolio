@@ -54,7 +54,7 @@ export function Sidebar({ firstFocusableRef }: SidebarProps): JSX.Element {
 
   const entries = useMemo(
     () => [
-      { id: 'hero' as SectionId, label: 'home' },
+      { id: 'home' as SectionId, label: 'home' },
       { id: 'about' as SectionId, label: 'user_profile' },
       { id: 'skills' as SectionId, label: 'skills' },
       { id: 'certifications' as SectionId, label: 'certs' },
@@ -149,7 +149,7 @@ export function Sidebar({ firstFocusableRef }: SidebarProps): JSX.Element {
       {renderFolderButton('home', 'home')}
       {openFolders.home &&
         entries
-          .filter((entry) => entry.id === 'hero' || entry.id === 'about')
+          .filter((entry) => entry.id === 'home' || entry.id === 'about')
           .map((entry, index) => (
             <button
               key={entry.id}
@@ -194,7 +194,7 @@ export function Sidebar({ firstFocusableRef }: SidebarProps): JSX.Element {
         ))}
 
       {entries
-        .filter((entry) => !['hero', 'about'].includes(entry.id))
+        .filter((entry) => !['home', 'about'].includes(entry.id))
         .map((entry) => (
           <button
             key={entry.id}

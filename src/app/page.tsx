@@ -11,7 +11,7 @@ import { SkillsSection } from '@/components/sections/SkillsSection';
 import { useScrollSpy } from '@/hooks/useScrollSpy';
 
 function HomeShell(): JSX.Element {
-  useScrollSpy(['hero', 'about', 'projects', 'skills', 'certifications', 'intel', 'contact']);
+  useScrollSpy(['home', 'about', 'projects', 'skills', 'certifications', 'intel', 'contact']);
 
   return (
     <div>
